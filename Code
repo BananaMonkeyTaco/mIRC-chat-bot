@@ -45,6 +45,10 @@ alias inisort {
   window -c @sortLeaderboardIn
   window -c @sortLeaderboardOut
 }
+on *:text:!bananas:#bananamonkeytaco: {
+  msg $chan $nick has $readini(Bananas.ini,Bananas,$nick) Bananas.
+  echo 12 -t $nick requested banana amount
+}
 on *:text:!givebananas:#bananamonkeytaco: {
   if ($nick isop #bananamonkeytaco) {
     if ($0 == 3) {
@@ -72,12 +76,7 @@ on *:text:!sort:#bananamonkeytaco: {
     $inisort
   }
 }
-on *:text:!bananas:#bananamonkeytaco: {
-  msg $chan $nick has $readini(Bananas.ini,Bananas,$nick) Bananas.
-  msg $chan To get your bananas from revlo type !change
-  echo 12 -t $nick requested banana amount
-}
-on *:text:!gamble:#bananamonkeytaco: {
+on *:text:!gamble*:#bananamonkeytaco: {
   if ($0 != 2) {
     msg $chan Error. Gamble command requires !gamble and a number.
   }
@@ -96,7 +95,7 @@ on *:text:!gamble:#bananamonkeytaco: {
     }
   }
 }
-on *:text:!duel:#bananamonkeytaco: {
+on *:text:!duel*:#bananamonkeytaco: {
   if ($0 = 3) {
     if (%dueler == null) {
       if ($3 > 1000) {
@@ -157,49 +156,7 @@ on *:text:!decline:#bananamonkeytaco: {
     %stakes = null
   }
 }
-on $*:text:/(*!sr|*!songrequest)$/i:#: {
-  timersong 1 10 msg $chan !songrequest $2-
-  msg $chan Redeeming a SongRequest for $nick at the cost of 20 bananas.
-  writeini -n Bananas.ini Bananas $nick $calc($readini(Bananas.ini,Bananas,$nick)-20)
-}
-on *:text:*!alltimerank:#bananamonkeytaco: {
-  if ($0 = 1) {
-    window @rank
-    loadbuf -t @rank Leaderboard.ini
-    dline @rank 1
-    filter -cnteu 2 61 @rank @rank
-    filter -c @rank @rank $+(*,$nick,*)
-    %rank = $gettok($line(@rank,1),1,32)
-    window -c @rank
-    msg $chan $nick is %rank on the leaderboard for all time Bananas.
-  }
-  else if ($0 = 2) {
-    if ($2 !isnum) {
-      window @rank
-      loadbuf -t @rank Leaderboard.ini
-      dline @rank 1
-      filter -cnteu 2 61 @rank @rank
-      filter -c @rank @rank $+(*,$2,*)
-      %rank = $gettok($line(@rank,1),1,32)
-      window -c @rank
-      msg $chan $2 is %rank on the leaderboard for all time Bananas.
-    }
-    else if ($2 isnum) {
-      window @rank
-      window @newrank
-      loadbuf -t @rank Leaderboard.ini
-      dline @rank 1
-      filter -cnteu 2 61 @rank @newrank
-      filter -cnteu 2 61 @rank @rank
-      filter -c @rank @rank $+(*,$nick,*)
-      %rank = $gettok($line(@rank,1),1,32)
-      filter -cr $+($calc(%rank -5),-,$calc(%rank +5)) @newrank @rank
-      msg $chan rank inbetweens $read(@rank) GGRRGTbrrbRBTREGRG error
-    }
-  }
-  %rank = null
-}
-on *:text:*!rank:#bananamonkeytaco: {
+on *:text:!rank*:#bananamonkeytaco: {
   if ($0 = 1) {
     window @rank
     loadbuf -t @rank Bananas.ini
@@ -236,6 +193,59 @@ on *:text:*!rank:#bananamonkeytaco: {
   }
   %rank = null
 }
+on *:text:!alltimerank*:#bananamonkeytaco: {
+  if ($0 = 1) {
+    window @rank
+    loadbuf -t @rank Leaderboard.ini
+    dline @rank 1
+    filter -cnteu 2 61 @rank @rank
+    filter -c @rank @rank $+(*,$nick,*)
+    %rank = $gettok($line(@rank,1),1,32)
+    window -c @rank
+    msg $chan $nick is %rank on the leaderboard for all time Bananas.
+  }
+  else if ($0 = 2) {
+    if ($2 !isnum) {
+      window @rank
+      loadbuf -t @rank Leaderboard.ini
+      dline @rank 1
+      filter -cnteu 2 61 @rank @rank
+      filter -c @rank @rank $+(*,$2,*)
+      %rank = $gettok($line(@rank,1),1,32)
+      window -c @rank
+      msg $chan $2 is %rank on the leaderboard for all time Bananas.
+    }
+    else if ($2 isnum) {
+      window @rank
+      window @newrank
+      loadbuf -t @rank Leaderboard.ini
+      dline @rank 1
+      filter -cnteu 2 61 @rank @newrank
+      filter -cnteu 2 61 @rank @rank
+      filter -c @rank @rank $+(*,$nick,*)
+      %rank = $gettok($line(@rank,1),1,32)
+      filter -cr $+($calc(%rank -5),-,$calc(%rank +5)) @newrank @rank
+      msg $chan rank inbetweens $read(@rank) GGRRGTbrrbRBTREGRG error
+    }
+  }
+  %rank = null
+}
+on *:text:!leaderboard:#bananamonkeytaco: {
+  window @leaderboard
+  loadbuf -t @leaderboard Bananas.ini
+  dline @leaderboard 1
+  filter -cteu 2 61 @leaderboard @leaderboard
+  msg $chan The top 5 people are: $line(@leaderboard,1) $line(@leaderboard,2) $line(@leaderboard,3) $line(@leaderboard,4) $line(@leaderboard,5)
+  window -c @leaderboard
+}
+on *:text:!alltimeleaderboard:#bananamonkeytaco: {
+  window @leaderboard
+  loadbuf -t @leaderboard Leaderboard.ini
+  dline @leaderboard 1
+  filter -cteu 2 61 @leaderboard @leaderboard
+  msg $chan The top 5 people are: $line(@leaderboard,1) $line(@leaderboard,2) $line(@leaderboard,3) $line(@leaderboard,4) $line(@leaderboard,5)
+  window -c @leaderboard
+}
 on *:text:!daytax:#bananamonkeytaco: {
   if ($nick == bananamonkeytaco) {
     %temp = $lines(Bananas.ini)
@@ -256,51 +266,35 @@ on *:text:!daytax:#bananamonkeytaco: {
     }
   }
 }
-on *:text:*:#bananamonkeytaco: {
-  echo 12 -t $nick - text received
-  if ($nick == revlobot) {
-    if ($4 == Bananas) {
-      %number = $3
-      %name = $1
-      %number = %number - $3
-      %number = %number - $3
-      msg $chan !bonus $1 %number
-      writeini -n Bananas.ini Bananas $1 $calc($readini(Bananas.ini,Bananas,$1)+$3)
-    }
+on *:text:!sr*:#bananamonkeytaco: {
+  timersong 1 10 msg $chan !sr $2-
+  msg $chan Redeeming a SongRequest for $nick at the cost of 20 bananas.
+  writeini -n Bananas.ini Bananas $nick $calc($readini(Bananas.ini,Bananas,$nick)-20)
+}
+on *:text:!songrequest*:#bananamonkeytaco: {
+  timersong 1 10 msg $chan !sr $2-
+  msg $chan Redeeming a SongRequest for $nick at the cost of 20 bananas.
+  writeini -n Bananas.ini Bananas $nick $calc($readini(Bananas.ini,Bananas,$nick)-20)
+}
+on *:text:!discordreward:#bananamonkeytaco: {
+  if ($readini(Bananas.ini,Bananas,$nick) >= 300) {
+    msg $chan /w $nick Use this link to join the discord: https://discord.gg/xC7zc6n Also make sure to say in the chat when you join so my master can allow you to speak in the Discord. Also note that I am not able to respond in any way
   }
-  else if ($nick != revlobot) {
-    else if ($1 == !nextrank) {
-      window @rank
-      loadbuf -t @rank Leaderboard.ini
-      dline @rank 1
-      filter -cnteu 2 61 @rank @rank
-      filter -c @rank @rank $+(*,$nick,*)
-      %rank = $gettok($line(@rank,1),1,32)
-      msg $chan You are rank %rank on the leaderboard. 
-    }
-
-    else if ($1 == hello) {
-      msg $chan Hello $nick
-    }
-    else if ($1 == BITCH) {
-      msg $chan Hello, how are you doing today?
-    }
-    else if ($count($1-,moobot) > 0) {
-      msg $chan Did someone say moobot? Do you think I'm moobot? Are you trying to imply that I'm similar to the uselss, filthy, garbage bot? How dare you.
-    }
-    else if ($count($1-,nowabot) > 0) {
-      msg $chan Did someone say something about my dad?
-    }
-    else if ($count($1-,<3 me,love me)) {
-      msg $chan /me makes love to $nick 
-    }
-    else if ($1 == !yonder) {
-      msg $chan ...
-    }
-    else {
-      return
-    }
+  else {
+    msg $chan I'm sorry, but you do not have the 300 bananas needed to redeem this reward.
   }
+}
+on *:text:*nowabot*:#bananamonkeytaco: {
+  msg $chan Did someone say something about my dad?
+}
+on *:text:*moobot*:#bananamonkeytaco: {
+  msg $chan Did someone say moobot? Do you think I'm moobot? Are you trying to imply that I'm similar to that useless, filthy, garbage bot? How dare you.
+}
+on *:text:!yonder:#bananamonkeytaco: {
+  msg $chan ...
+}
+on *:text:*:#: {
+  return
 }
 on *:text:youcannotsaythiseversecretlostcoding:#: {
   else if ($1 == !dst) {
@@ -347,4 +341,9 @@ on *:text:youcannotsaythiseversecretlostcoding:#: {
       }
     }
   }
+}
+on $*:text:/^(!sr*|!songrequest*)/si:#: {
+  timersong 1 10 msg $chan !songrequest $2-
+  msg $chan Redeeming a SongRequest for $nick at the cost of 20 bananas.
+  writeini -n Bananas.ini Bananas $nick $calc($readini(Bananas.ini,Bananas,$nick)-20)
 }
